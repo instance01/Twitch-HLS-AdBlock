@@ -1,6 +1,6 @@
 # Motivation
 
-Twitch is playing a 15-30 second advertisement when one starts to watch a new channel. For people who jump around a bit this is pretty annoying.
+Twitch is playing a 15-30 second advertisement whenever one starts watching a new channel. For people who jump around a bit this is pretty annoying.
 
 Twitch staff has been fairly quick to fix low hanging fruits that disable advertisements from the client side. Since they're able to inject advertisementst into the HLS stream directly, I believe such fixes will not always be available.
 
