@@ -52,8 +52,6 @@ window.Worker = class Worker extends oldWorker {
                         break;
                     }
 
-                    console.log('AAAAAAAAAAADDDDDDDDSSSSSS');
-
                     self._wasAd = true;
 
                     if (scte35InFlag == null) {
