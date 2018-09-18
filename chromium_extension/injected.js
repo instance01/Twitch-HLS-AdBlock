@@ -79,8 +79,8 @@ window.Worker = class Worker extends oldWorker {
             }
         `
 
-        var arrayBuffer = `
-            Response.prototype.arrayBuffer = function() {
+        var filteredArrayBuffer = `
+            Response.prototype.filteredArrayBuffer = function() {
                 return this.text().then((text) => {
                     var ret;
 
@@ -99,30 +99,14 @@ window.Worker = class Worker extends oldWorker {
             };
         `
 
-        var body = `
-            var oldBody = Object.getOwnPropertyDescriptor(Response.prototype, 'body');
-            Object.defineProperty(Response.prototype, 'body', {
-                get: function() {
-                    if (this.url.endsWith('m3u8')) {
-                        if (!this._gotData) {
-                            this._gotData = true;
-                            this.body._data = this.arrayBuffer();
-                            this.body._dataRead = false;
-                        }
-                    }
-                    return oldBody.get.call(this);
-                },
-                set: function(val) {
-                    oldBody.set.call(this, val);
-                }
-            });
-        `
-
         var reader = `
-            var oldReader = ReadableStream.prototype.getReader;
+            // Firefox doesn't have ReadableStream
+            self.ReadableStream = function () { };
+            ReadableStream.prototype.cancel = function () { };
+            ReadableStream.prototype.locked = false;
             ReadableStream.prototype.getReader = function() {
                 if (this._dataRead === undefined) {
-                    return oldReader.apply(this, arguments);
+                    return;
                 }
 
                 var ret = Object.create(null);
@@ -153,6 +137,34 @@ window.Worker = class Worker extends oldWorker {
             }
         `
 
+        var body = `
+            Object.defineProperty(Response.prototype, 'body', {
+                get: function() {
+                    if (!this._rs) {
+                        this._rs = new ReadableStream();
+                    } else {
+                        return this._rs;
+                    }
+
+                    if (!this._gotData) {
+                        this._gotData = true;
+
+                        if (this.url.endsWith('m3u8')) {
+                            this._rs._data = this.filteredArrayBuffer();
+                        } else {
+                            this._rs._data = this.arrayBuffer();
+                        }
+                        this._rs._dataRead = false;
+                    }
+
+                    return this._rs;
+                },
+                set: function(val) {
+                    this._rs = val;
+                }
+            });
+        `
+
         var e = `
             var Module = {
                 WASM_BINARY_URL: 'https://cvp.twitch.tv/2.6.7/wasmworker.min.wasm',
@@ -165,9 +177,9 @@ window.Worker = class Worker extends oldWorker {
 
             ${stripAds}
 
-            ${arrayBuffer}
-
             ${body}
+
+            ${filteredArrayBuffer}
 
             ${reader}
 
