@@ -6,7 +6,7 @@ Twitch staff has been fairly quick to fix low hanging fruits that disable advert
 
 This chromium extension monkey patches the web worker (among others) Twitch uses and edits the m3u8 playlist that gets requested every few seconds to simply remove segments that are marked as advertisments (using SCTE-35 flags).
 
-Right now Twitch also makes the actual stream available in those playlist files after a few seconds, which means that just after around 5 seconds the real stream begins, instead of 30 seconds of advertisements.
+Right now Twitch also makes the actual stream available in those playlist files after a few seconds, which means that after just around 5 seconds the real stream begins, instead of 30 seconds of advertisements.
 
 # Installation
 
@@ -22,7 +22,7 @@ To install manually:
 
 # Limitations
 
-Generally it seems to work fine. Whenever one loads up a new channel, if there's an advertisment injected by Twitch, after a few seconds of loading the real stream begins without any indication of an advertisment. Additionally there is a few seconds of buffering after 30 seconds (or maybe that's my shitty connection).
+Generally it seems to work fine. Whenever one loads up a new channel, if there's an advertisment injected by Twitch, after a few seconds of loading the real stream begins without any indication of an advertisment.
 
 However I've seen rare instances where the stream breaks, which requires a browser reload. This happened once when the advertisment loaded 2-3 seconds after the stream has started normally.
 
