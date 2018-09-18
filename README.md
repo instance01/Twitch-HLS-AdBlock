@@ -26,7 +26,7 @@ Generally it seems to work fine. Whenever one loads up a new channel, if there's
 
 However I've seen rare instances where the stream breaks, which requires a browser reload. This happened once when the advertisment loaded 2-3 seconds after the stream has started normally.
 
-Currently this is only tested on the latest stable chromium browser, but Firefox support (if not already working) will definitely follow shortly.
+Currently this is only tested on the latest stable chromium browser and latest Firefox stable.
 
 # Contributing
 
