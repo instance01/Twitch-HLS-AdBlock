@@ -36,8 +36,6 @@ window.Worker = class Worker extends oldWorker {
                             break;
                         }
 
-                        // console.log('ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS ADS');
-
                         self._wasAd = true;
 
                         if (scte35InFlag == null) {
@@ -53,8 +51,9 @@ window.Worker = class Worker extends oldWorker {
                         var currSeq = /#EXT-X-MEDIA-SEQUENCE:([0-9]*)/.exec(textStr)[1];
 
                         if (self._seq === undefined) {
-                            // TODO Reconsider this '-2', slight buffering after ad gone. Before: 9 hardcoded a few lines below.
-                            self._seq = Math.max(0, textStr.match(/#EXTINF:/gi).length - 2);
+                            // TODO Right now this results in a jump back by 2 seconds, but no (or minor) buffering.
+                            //self._seq = Math.max(0, textStr.match(/#EXTINF:/gi).length - 2);
+                            self._seq = Math.max(0, parseInt(currSeq) - 1);
                         }
 
                         var newSeq = Math.max(0, parseInt(currSeq) - self._seq);
