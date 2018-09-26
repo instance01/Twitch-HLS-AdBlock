@@ -1,6 +1,6 @@
 {
     "name": "Twitch-HLS-Ad-Block",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "author": "InstanceLabs",
     "description": "Block Twitch ads that are inserted directly in the HLS stream",
     "content_scripts": [{
