@@ -5,7 +5,8 @@
     "description": "Block Twitch ads that are inserted directly in the HLS stream",
     "content_scripts": [{
         "matches": ["*://*.twitch.tv/*"],
-        "js": ["contentscript.js"]
+        "js": ["contentscript.js"],
+        "run_at": "document_start"
     }],
     "web_accessible_resources": ["injected.js"],
     "manifest_version": 2
