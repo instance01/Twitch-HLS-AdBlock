@@ -118,6 +118,9 @@ function getFuncsForInjection () {
                     );
                 } else {
                     return new Promise((resolve, reject) => {
+                        if (performance._now === undefined) {
+                            fixPerformance();
+                        }
                         resolve({ value: undefined, done: true });
                     });
                 }
@@ -169,6 +172,24 @@ function getFuncsForInjection () {
         });
     `
 
+    var performance = `
+        // For now the ReadableStream implementation above doesn't support chunks.
+        // The current code is too slow for Twitch and after a while there can be rare instances where the stream breaks for a few seconds.
+        // For now just render their performance checks useless, at least until the code above is more performant.
+        function fixPerformance() {
+            performance._now = performance.now;
+
+            // vc() is used by the wasm worker, let's not break anything here
+            self.vc = function () {
+                return performance._now()
+            };
+
+            performance.now = function () {
+                return 0;
+            }
+        }
+    `
+
     return  `
         ${str2ab}
         ${fixSeqNr}
@@ -176,6 +197,7 @@ function getFuncsForInjection () {
         ${body}
         ${filteredArrayBuffer}
         ${reader}
+        ${performance}
     `
 }
 
