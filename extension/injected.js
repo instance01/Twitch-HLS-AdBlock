@@ -126,6 +126,10 @@ function getFuncsForInjection () {
                 }
             }.bind(this);
 
+            // TODO For the future
+            // ret.end = function () {
+            // }.bind(this);
+
             ret.cancel = function () { this._dataRead = true; }.bind(this);
             ret.releaseLock = function () { }.bind(this);
             Object.defineProperty(ret, 'locked', {
@@ -179,8 +183,8 @@ function getFuncsForInjection () {
         function fixPerformance() {
             performance._now = performance.now;
 
-            // vc() is used by the wasm worker, let's not break anything here
-            self.vc = function () {
+            // yc() is used by the wasm worker, let's not break anything here
+            self.yc = function () {
                 return performance._now()
             };
 
@@ -206,13 +210,13 @@ window.Worker = class Worker extends oldWorker {
     constructor(twitchBlobUrl) {
         var newBlobStr = `
             var Module = {
-                WASM_BINARY_URL: 'https://cvp.twitch.tv/2.8.3/wasmworker.min.wasm',
+                WASM_BINARY_URL: 'https://cvp.twitch.tv/2.8.5/wasmworker.min.wasm',
                 WASM_CACHE_MODE: true
             }
 
             ${ getFuncsForInjection() }
 
-            importScripts('https://cvp.twitch.tv/2.8.3/wasmworker.min.js');
+            importScripts('https://cvp.twitch.tv/2.8.5/wasmworker.min.js');
         `
         super(URL.createObjectURL(new Blob([newBlobStr])));
     }
