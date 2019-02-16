@@ -183,8 +183,8 @@ function getFuncsForInjection () {
         function fixPerformance() {
             performance._now = performance.now;
 
-            // yc() is used by the wasm worker, let's not break anything here
-            self.yc = function () {
+            // zc() is used by the wasm worker, let's not break anything here
+            self.zc = function () {
                 return performance._now()
             };
 
@@ -210,13 +210,13 @@ window.Worker = class Worker extends oldWorker {
     constructor(twitchBlobUrl) {
         var newBlobStr = `
             var Module = {
-                WASM_BINARY_URL: 'https://cvp.twitch.tv/2.8.5/wasmworker.min.wasm',
+                WASM_BINARY_URL: 'https://cvp.twitch.tv/2.9.1/wasmworker.min.wasm',
                 WASM_CACHE_MODE: true
             }
 
             ${ getFuncsForInjection() }
 
-            importScripts('https://cvp.twitch.tv/2.8.5/wasmworker.min.js');
+            importScripts('https://cvp.twitch.tv/2.9.1/wasmworker.min.js');
         `
         super(URL.createObjectURL(new Blob([newBlobStr])));
     }
