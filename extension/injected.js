@@ -1,4 +1,4 @@
-console.log("Injected Twitch Ad Blocker.");
+console.log("Injected Twitch HLS Adblock.");
 
 function getFuncsForInjection () {
     var str2ab = `
@@ -205,18 +205,35 @@ function getFuncsForInjection () {
     `
 }
 
+function getWasmBinaryVersion (twitchBlobUrl) {
+    var req = new XMLHttpRequest();
+    req.open('GET', twitchBlobUrl, false);
+    req.send();
+    return req.responseText.match(/tv\/(.*)\/wasmworker/)[1];
+}
+
+const SUPPORTED_VERSION = "2.9.1";
 const oldWorker = window.Worker;
 window.Worker = class Worker extends oldWorker {
     constructor(twitchBlobUrl) {
+        var version = getWasmBinaryVersion(twitchBlobUrl);
+
+        if (version != SUPPORTED_VERSION) {
+            console.log(`Twitch HLS Adblock found possibly unsupported version: ${version}.`);
+            console.log(`Current supported version: ${SUPPORTED_VERSION}.`);
+            console.log("This is most likely fine. Trying upstream wasmworker..");
+            // TODO: Disable performance fix when running unsupported version.
+        }
+
         var newBlobStr = `
             var Module = {
-                WASM_BINARY_URL: 'https://cvp.twitch.tv/2.9.1/wasmworker.min.wasm',
+                WASM_BINARY_URL: 'https://cvp.twitch.tv/${version}/wasmworker.min.wasm',
                 WASM_CACHE_MODE: true
             }
 
             ${ getFuncsForInjection() }
 
-            importScripts('https://cvp.twitch.tv/2.9.1/wasmworker.min.js');
+            importScripts('https://cvp.twitch.tv/${version}/wasmworker.min.js');
         `
         super(URL.createObjectURL(new Blob([newBlobStr])));
     }
