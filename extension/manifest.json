@@ -8,6 +8,6 @@
         "js": ["contentscript.js"],
         "run_at": "document_start"
     }],
-    "web_accessible_resources": ["injected.js"],
+    "web_accessible_resources": ["lib.js", "injected.js"],
     "manifest_version": 2
 }
