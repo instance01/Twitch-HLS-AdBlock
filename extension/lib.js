@@ -31,27 +31,16 @@ function getFuncsForInjection (usePerformanceFix) {
     }
 
     function stripAds (textStr) {
-        var beforeStr = textStr;
+        var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT');
 
-        var haveAdTags = textStr.match(/#EXT-X-SCTE35-OUT/gi) != null;
-
-        // There can be multiple #EXT-X-SCTE35-OUT flags (multiple ads)
-        // Let's block up to 20 ads
-        for (var i = 0; i < 20; ++i) {
-            var scte35OutFlag = textStr.match(/#EXT-X-SCTE35-OUT/gi)
-            var scte35InFlag = textStr.match(/#EXT-X-SCTE35-IN/gi)
-
-            if (scte35OutFlag === null) {
-                break;
-            }
-
-            self._wasAd = true;
-
-            if (scte35InFlag === null) {
-                textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\\s)*/gmi, '');
-            } else {
-                textStr = textStr.replace(/\\s#EXT-X-SCTE35-OUT(.|\\s)*#EXT-X-SCTE35-IN/gmi, '');
-            }
+        if (haveAdTags) {
+          self._wasAd = true;
+          textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*#EXT-X-SCTE35-IN/gmi, '');
+          textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*/gmi, '');
+          textStr = textStr.replace(/#EXT-X-SCTE35-IN/gi, '');
+          textStr = textStr.replace(/#EXT-X-DISCONTINUITY/gi, '');
+          textStr = textStr.replace(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi, '');
+          textStr = textStr.replace(/^\s*$(?:\n)/gm, '');
         }
 
         if (!haveAdTags && self._wasAd) {
@@ -60,15 +49,7 @@ function getFuncsForInjection (usePerformanceFix) {
             textStr = fixSeqNr(textStr);
         }
 
-        // Remove all left over garbage
-        var lines = textStr.split('\\n');
-        lines = lines.filter((line) => {
-            return !line.match(/#EXT-X-DISCONTINUITY/gi)
-                && !line.match(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi)
-                && !line.match(/#EXT-X-SCTE35-OUT.*/gi)
-                && !line.match(/#EXT-X-SCTE35-IN/gi);
-        });
-        return lines.join('\\n');
+        return textStr;
     }
 
     function overrideFilteredArrayBuffer() {
@@ -203,7 +184,7 @@ function getFuncsForInjection (usePerformanceFix) {
         ${stripAds.toString()}
         ${overrideFilteredArrayBuffer.toString()}
         ${overrideReadableStream.toString()}
-        ${overrideBody.toString()} 
+        ${overrideBody.toString()}
         ${applyOverrides}
         ${fixPerformance.toString()}
     `
