@@ -2,7 +2,7 @@ function getFuncsForInjection (usePerformanceFix) {
     function str2ab(str) {
         var buf = new ArrayBuffer(str.length);
         var bufView = new Uint8Array(buf);
-        for (var i=0, strLen=str.length; i < strLen; i++) {
+        for (var i = 0, strLen = str.length; i < strLen; i++) {
             bufView[i] = str.charCodeAt(i);
         }
         return buf;
@@ -34,13 +34,13 @@ function getFuncsForInjection (usePerformanceFix) {
         var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT');
 
         if (haveAdTags) {
-          self._wasAd = true;
-          textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*#EXT-X-SCTE35-IN/gmi, '');
-          textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*/gmi, '');
-          textStr = textStr.replace(/#EXT-X-SCTE35-IN/gi, '');
-          textStr = textStr.replace(/#EXT-X-DISCONTINUITY/gi, '');
-          textStr = textStr.replace(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi, '');
-          textStr = textStr.replace(/^\s*$(?:\n)/gm, '');
+            self._wasAd = true;
+            textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*#EXT-X-SCTE35-IN/gmi, '');
+            textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*/gmi, '');
+            textStr = textStr.replace(/#EXT-X-SCTE35-IN/gi, '');
+            textStr = textStr.replace(/#EXT-X-DISCONTINUITY/gi, '');
+            textStr = textStr.replace(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi, '');
+            textStr = textStr.replace(/^\s*$(?:\n)/gm, '');
         }
 
         if (!haveAdTags && self._wasAd) {
