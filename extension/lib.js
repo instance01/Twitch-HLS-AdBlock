@@ -8,26 +8,8 @@ function getFuncsForInjection (usePerformanceFix) {
         return buf;
     }
 
-    function fixSeqNr(textStr) {
-        var currSeq = /#EXT-X-MEDIA-SEQUENCE:([0-9]*)/.exec(textStr)
-        if (currSeq === null) {
-            // That's bad, MEDIA-SEQUENCE is missing which is mandatory in the spec
-            return textStr;
-        }
-
-        if (currSeq.length < 2) {
-            return textStr;
-        }
-
-        currSeq = currSeq[1];
-
-        if (self._seq === undefined) {
-            // Right now this results in a jump back by 2 seconds, but no (or minor) buffering.
-            self._seq = Math.max(0, parseInt(currSeq) - 1);
-        }
-
-        var newSeq = Math.max(0, parseInt(currSeq) - self._seq);
-        return textStr.replace(/#EXT-X-MEDIA-SEQUENCE:([0-9]*)/, '#EXT-X-MEDIA-SEQUENCE:' + newSeq);
+    function getSeqNr(textStr) {
+        return /#EXT-X-MEDIA-SEQUENCE:([0-9]*)/.exec(textStr)[1];
     }
 
     function stripAds (textStr) {
@@ -35,18 +17,59 @@ function getFuncsForInjection (usePerformanceFix) {
 
         if (haveAdTags) {
             self._wasAd = true;
+
+            if (self._startSeq === undefined) {
+                self._startSeq = Math.max(0, parseInt(getSeqNr(textStr)));
+            }
+
             textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*#EXT-X-SCTE35-IN/gmi, '');
             textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*/gmi, '');
             textStr = textStr.replace(/#EXT-X-SCTE35-IN/gi, '');
             textStr = textStr.replace(/#EXT-X-DISCONTINUITY/gi, '');
             textStr = textStr.replace(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi, '');
+
+            // Get rid of empty lines
             textStr = textStr.replace(/^\s*$(?:\n)/gm, '');
+
+            if (!textStr.includes('#EXTINF')) {
+                // Playlist currently only includes ads and not the underlying actual stream.
+                // We stripped the playlist of all ads though, so it's empty.
+                // This breaks Twitch.
+                // So let's reuse the last stream chunk. This will most likely buffer/be glitchy.
+                // We manually increase the sequence number.
+                // TODO: Find better solution?
+                textStr = self._lastStreamChunk;
+                var currSeq = parseInt(getSeqNr(textStr));
+                if (self._lastSeq === undefined) {
+                    self._lastSeq = 0;
+                }
+                self._lastSeq += 1;
+                textStr = textStr.replace(/#EXT-X-MEDIA-SEQUENCE:([0-9]*)/, '#EXT-X-MEDIA-SEQUENCE:' + (currSeq + self._lastSeq));
+            } else {
+                self._lastStreamChunk = textStr;
+            }
         }
 
         if (!haveAdTags && self._wasAd) {
             // No ads anymore (no SCTE35 flags), normal playlist again.
             // We have to fix the sequence number though.
-            textStr = fixSeqNr(textStr);
+            // 
+            // Through trial and error it seems the following is most stable.
+            // Things tried:
+            // * Option 1: Not changing media sequence
+            // * Option 2: Subtracting _deltaSeq
+            // * Optino 3: Adding _deltaSeq (as seen below)
+            // It seems we can't get around buffering. At least with midroll ads, which the below was tested with.
+            // Originally Option 2 was used, but only tested with preroll ads, and it seemed to work good for those.
+            // TODO: More testing needed.
+            var currSeq = parseInt(getSeqNr(textStr));
+
+            if (self._deltaSeq === undefined) {
+                self._deltaSeq = currSeq - self._startSeq - 1;
+            }
+
+            var newSeq = currSeq + self._deltaSeq - 1;
+            textStr = textStr.replace(/#EXT-X-MEDIA-SEQUENCE:([0-9]*)/, '#EXT-X-MEDIA-SEQUENCE:' + newSeq);
         }
 
         return textStr;
@@ -180,7 +203,7 @@ function getFuncsForInjection (usePerformanceFix) {
 
     return  `
         ${str2ab.toString()}
-        ${fixSeqNr.toString()}
+        ${getSeqNr.toString()}
         ${stripAds.toString()}
         ${overrideFilteredArrayBuffer.toString()}
         ${overrideReadableStream.toString()}
