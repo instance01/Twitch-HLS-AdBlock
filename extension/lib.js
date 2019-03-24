@@ -9,7 +9,11 @@ function getFuncsForInjection (usePerformanceFix) {
     }
 
     function getSeqNr(textStr) {
-        return /#EXT-X-MEDIA-SEQUENCE:([0-9]*)/.exec(textStr)[1];
+        var seqMatch = /#EXT-X-MEDIA-SEQUENCE:([0-9]*)/.exec(textStr);
+        if (seqMatch === null) {
+            return 1;
+        }
+        return seqMatch[1];
     }
 
     function stripAds (textStr) {
@@ -39,6 +43,9 @@ function getFuncsForInjection (usePerformanceFix) {
                 // We manually increase the sequence number.
                 // TODO: Find better solution?
                 textStr = self._lastStreamChunk;
+                if (textStr === undefined) {
+                    textStr = '';
+                }
                 var currSeq = parseInt(getSeqNr(textStr));
                 if (self._lastSeq === undefined) {
                     self._lastSeq = 0;
