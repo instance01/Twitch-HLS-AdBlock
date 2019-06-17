@@ -42,9 +42,10 @@ function getFuncsForInjection (usePerformanceFix) {
                 // So let's reuse the last stream chunk. This will most likely buffer/be glitchy.
                 // We manually increase the sequence number.
                 // TODO: Find better solution?
-                textStr = self._lastStreamChunk;
                 if (textStr === undefined) {
                     textStr = '';
+                } else if (self._lastStreamChunk !== undefined) {
+                textStr = self._lastStreamChunk;
                 }
                 var currSeq = parseInt(getSeqNr(textStr));
                 if (self._lastSeq === undefined) {
