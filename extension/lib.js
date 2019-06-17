@@ -224,5 +224,5 @@ function getWasmBinaryVersion (twitchBlobUrl) {
     var req = new XMLHttpRequest();
     req.open('GET', twitchBlobUrl, false);
     req.send();
-    return req.responseText.match(/tv\/(.*)\/wasmworker/)[1];
+    return req.responseText.match(/wasmworker\.min\-(.*)\.js/)[1];
 }
