@@ -24,7 +24,7 @@ window.Worker = class Worker extends oldWorker {
 
             ${ functions }
 
-            importScripts('https://static.twitchcdn.net/assets/wasmworker.min-${version}.wasm');
+            importScripts('https://static.twitchcdn.net/assets/wasmworker.min-${version}.js');
         `
         super(URL.createObjectURL(new Blob([newBlobStr])));
     }
