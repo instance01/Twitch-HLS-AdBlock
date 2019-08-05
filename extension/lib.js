@@ -17,7 +17,7 @@ function getFuncsForInjection (usePerformanceFix) {
     }
 
     function stripAds (textStr) {
-        var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT');
+        var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT') || textStr.includes('stitched-ad');
 
         if (haveAdTags) {
             self._wasAd = true;
