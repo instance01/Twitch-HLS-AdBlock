@@ -17,7 +17,7 @@ function getFuncsForInjection (usePerformanceFix) {
     }
 
     function stripAds (textStr) {
-        var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT');
+        var haveAdTags = textStr.includes('#EXT-X-SCTE35-OUT') || textStr.includes('stitched-ad');
 
         if (haveAdTags) {
             self._wasAd = true;
@@ -42,9 +42,10 @@ function getFuncsForInjection (usePerformanceFix) {
                 // So let's reuse the last stream chunk. This will most likely buffer/be glitchy.
                 // We manually increase the sequence number.
                 // TODO: Find better solution?
-                textStr = self._lastStreamChunk;
                 if (textStr === undefined) {
                     textStr = '';
+                } else if (self._lastStreamChunk !== undefined) {
+                textStr = self._lastStreamChunk;
                 }
                 var currSeq = parseInt(getSeqNr(textStr));
                 if (self._lastSeq === undefined) {
@@ -224,5 +225,5 @@ function getWasmBinaryVersion (twitchBlobUrl) {
     var req = new XMLHttpRequest();
     req.open('GET', twitchBlobUrl, false);
     req.send();
-    return req.responseText.match(/tv\/(.*)\/wasmworker/)[1];
+    return req.responseText.match(/wasmworker\.min\-(.*)\.js/)[1];
 }

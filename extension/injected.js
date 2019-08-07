@@ -18,13 +18,13 @@ window.Worker = class Worker extends oldWorker {
 
         var newBlobStr = `
             var Module = {
-                WASM_BINARY_URL: 'https://cvp.twitch.tv/${version}/wasmworker.min.wasm',
+                WASM_BINARY_URL: 'https://static.twitchcdn.net/assets/wasmworker.min-${version}.wasm',
                 WASM_CACHE_MODE: true
             }
 
             ${ functions }
 
-            importScripts('https://cvp.twitch.tv/${version}/wasmworker.min.js');
+            importScripts('https://static.twitchcdn.net/assets/wasmworker.min-${version}.js');
         `
         super(URL.createObjectURL(new Blob([newBlobStr])));
     }
