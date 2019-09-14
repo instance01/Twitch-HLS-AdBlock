@@ -28,6 +28,7 @@ function getFuncsForInjection (usePerformanceFix) {
 
             textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*#EXT-X-SCTE35-IN/gmi, '');
             textStr = textStr.replace(/#EXT-X-SCTE35-OUT(.|\s)*/gmi, '');
+            textStr = textStr.replace(/#EXTINF:2.00[12](.|\s)*/gmi, '');
             textStr = textStr.replace(/#EXT-X-SCTE35-IN/gi, '');
             textStr = textStr.replace(/#EXT-X-DISCONTINUITY/gi, '');
             textStr = textStr.replace(/#EXT-X-DATERANGE:ID="stitched-ad.*/gi, '');
