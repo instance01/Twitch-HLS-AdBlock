@@ -222,9 +222,9 @@ function getFuncsForInjection (usePerformanceFix) {
     `
 }
 
-function getWasmBinaryVersion (twitchBlobUrl) {
+function getWasmWorkerUrl (twitchBlobUrl) {
     var req = new XMLHttpRequest();
     req.open('GET', twitchBlobUrl, false);
     req.send();
-    return req.responseText.match(/wasmworker\.min\-(.*)\.js/)[1];
+    return req.responseText.split("'")[1]
 }
